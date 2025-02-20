@@ -1,50 +1,134 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { PasswordScreen } from './components/PasswordScreen'
+
+interface PageData {
+  title: string;
+  date: string;
+  preview: string;
+  url: string;
+}
 
 interface Node {
   position: THREE.Vector3;
   mesh: THREE.Mesh;
   connections: number[];
+  pageData: PageData;
+}
+
+function createPageTexture(pageData: PageData) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')!
+  
+  // Background
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, 256, 256)
+  
+  // Title
+  ctx.fillStyle = '#000000'
+  ctx.font = 'bold 24px Arial'
+  ctx.fillText(pageData.title, 20, 40, 216)
+  
+  // Date
+  ctx.font = '16px Arial'
+  ctx.fillStyle = '#666666'
+  ctx.fillText(pageData.date, 20, 70, 216)
+  
+  // Preview text
+  ctx.font = '14px Arial'
+  ctx.fillStyle = '#333333'
+  const words = pageData.preview.split(' ')
+  let line = ''
+  let y = 100
+  words.forEach(word => {
+    const testLine = line + word + ' '
+    if (ctx.measureText(testLine).width > 216) {
+      ctx.fillText(line, 20, y)
+      line = word + ' '
+      y += 20
+    } else {
+      line = testLine
+    }
+  })
+  ctx.fillText(line, 20, y)
+
+  return new THREE.CanvasTexture(canvas)
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const mountRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!mountRef.current) return
+    if (!isAuthenticated || !mountRef.current) return
 
     // Scene setup
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x111111)
     
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-    camera.position.z = 15
+    camera.position.set(0, -2, 15) // Added Y offset
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(window.innerWidth, window.innerHeight)
     mountRef.current.appendChild(renderer.domElement)
 
-    // Node creation with random positions
-    const nodes: Node[] = []
-    const nodeGeometry = new THREE.SphereGeometry(0.3, 32, 32)
-    const nodeMaterial = new THREE.MeshPhongMaterial({ color: 0xf4cccc })
-    const linesMaterial = new THREE.LineBasicMaterial({ 
-      color: 0xf4cccc, 
-      opacity: 0.3, 
-      transparent: true 
-    })
+    // Add orbit controls
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enableDamping = true
+    controls.dampingFactor = 0.05
+    controls.rotateSpeed = 0.5
+    controls.enableZoom = true
+    controls.minDistance = 5
+    controls.maxDistance = 30
+    controls.target.set(0, -2, 0)
 
-    // Create nodes with random positions within a sphere
-    const nodeCount = 20
-    const radius = 8
-    for (let i = 0; i < nodeCount; i++) {
+    // Sample page data with URLs
+    const pages: PageData[] = [
+      { 
+        title: 'Vday Invitation',
+        date: '10.02.2025',
+        preview: 'When I asked Minjoo to be my valentine',
+        url: 'https://vdayinv.netlify.app'
+      },
+      { 
+        title: 'Coming Soon..',
+        date: 'Coming Soon..',
+        preview: 'Coming Soon..',
+        url: ''
+      },
+      { 
+        title: 'Media Night',
+        date: '14.02.2025',
+        preview: 'Overcooked!',
+        url: 'https://medianight.netlify.app'
+      },
+    ]
+
+    // Node creation with page previews
+    const nodes: Node[] = []
+    const nodeGeometry = new THREE.PlaneGeometry(2, 2) // Larger size for readability
+    const radius = 10 // Define sphere radius for node positioning
+    
+    pages.forEach((pageData) => {
+      const texture = createPageTexture(pageData)
+      const nodeMaterial = new THREE.MeshBasicMaterial({ 
+        map: texture,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide
+      })
+      
       // Random position within a sphere
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(2 * Math.random() - 1)
       const r = radius * Math.cbrt(Math.random()) // Cube root for more uniform distribution
       
       const x = r * Math.sin(phi) * Math.cos(theta)
-      const y = r * Math.sin(phi) * Math.sin(theta)
+      const y = (r * Math.sin(phi) * Math.sin(theta)) - 2 // Offset Y position
       const z = r * Math.cos(phi)
       
       const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial)
@@ -53,10 +137,11 @@ function App() {
       nodes.push({
         position: new THREE.Vector3(x, y, z),
         mesh,
-        connections: []
+        connections: [],
+        pageData
       })
       scene.add(mesh)
-    }
+    })
 
     // Connect nodes to their nearest neighbors
     nodes.forEach((node, i) => {
@@ -79,6 +164,8 @@ function App() {
     const connectionsGroup = new THREE.Group()
     scene.add(connectionsGroup)
 
+    const linesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.5, transparent: true })
+
     function updateConnections() {
       // Remove old connections
       while(connectionsGroup.children.length) {
@@ -99,6 +186,46 @@ function App() {
     }
     updateConnections()
 
+    // Add raycaster for click detection
+    const raycaster = new THREE.Raycaster()
+    const mouse = new THREE.Vector2()
+
+    // Click handler
+    const handleClick = (event: MouseEvent) => {
+      const rect = mountRef.current?.getBoundingClientRect()
+      if (!rect) return
+
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+      raycaster.setFromCamera(mouse, camera)
+      const intersects = raycaster.intersectObjects(nodes.map(n => n.mesh))
+
+      if (intersects.length > 0) {
+        const clickedNode = nodes.find(n => n.mesh === intersects[0].object)
+        if (clickedNode?.pageData.url) {
+          window.open(clickedNode.pageData.url, '_blank')
+        }
+      }
+    }
+
+    // Hover handler for cursor change
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = mountRef.current?.getBoundingClientRect()
+      if (!rect) return
+
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+      raycaster.setFromCamera(mouse, camera)
+      const intersects = raycaster.intersectObjects(nodes.map(n => n.mesh))
+
+      mountRef.current!.style.cursor = intersects.length > 0 ? 'pointer' : 'default'
+    }
+
+    mountRef.current.addEventListener('click', handleClick)
+    mountRef.current.addEventListener('mousemove', handleMouseMove)
+
     // Add lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
     scene.add(ambientLight)
@@ -110,24 +237,32 @@ function App() {
     function animate() {
       requestAnimationFrame(animate)
 
-      // Animate nodes with more random movement
-      nodes.forEach((node, i) => {
-        const time = Date.now() * 0.001
-        const offset = i * 0.5 // Different offset for each node
+      // Update controls
+      controls.update()
+
+      // Make nodes face camera
+      nodes.forEach((node) => {
+        node.mesh.lookAt(camera.position)
         
-        // Apply subtle random movement in all directions
-        node.mesh.position.x += Math.sin(time * 0.5 + offset) * 0.01
-        node.mesh.position.y += Math.cos(time * 0.7 + offset) * 0.01
-        node.mesh.position.z += Math.sin(time * 0.3 + offset) * 0.01
+        // Animate nodes with slower movement
+        nodes.forEach((node, i) => {
+          const time = Date.now() * 0.0005 // Reduced from 0.001
+          const offset = i * 0.2 // Reduced from 0.5
+          
+          // Reduced movement factors from 0.01 to 0.002
+          node.mesh.position.x += Math.sin(time * 0.3 + offset) * 0.002
+          node.mesh.position.y += Math.cos(time * 0.4 + offset) * 0.002
+          node.mesh.position.z += Math.sin(time * 0.2 + offset) * 0.002
 
-        // Keep nodes within bounds
-        const pos = node.mesh.position
-        const bounds = radius * 1.2
-        if (pos.length() > bounds) {
-          pos.normalize().multiplyScalar(bounds)
-        }
+          // Keep nodes within bounds
+          const pos = node.mesh.position
+          const bounds = radius * 1.2
+          if (pos.length() > bounds) {
+            pos.normalize().multiplyScalar(bounds)
+          }
 
-        node.position.copy(node.mesh.position)
+          node.position.copy(node.mesh.position)
+        })
       })
 
       updateConnections()
@@ -144,30 +279,48 @@ function App() {
     window.addEventListener('resize', handleResize)
 
     return () => {
+      controls.dispose()
       window.removeEventListener('resize', handleResize)
       mountRef.current?.removeChild(renderer.domElement)
+      mountRef.current?.removeEventListener('click', handleClick)
+      mountRef.current?.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [])
+  }, [isAuthenticated]) // Add isAuthenticated as dependency
 
   return (
     <>
-      <div style={{
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        fontSize: '2rem',
-        zIndex: 1000,
-        display: 'flex',
-        gap: '1rem',
-        background: 'rgba(0, 0, 0, 0)',
-        padding: '10px 20px',
-        borderRadius: '20px',
-      }}>
-        <span role="img" aria-label="snake">🐍</span>
-        <span role="img" aria-label="lamb">🐑</span>
-      </div>
-      <div ref={mountRef}></div>
+      {!isAuthenticated ? (
+        <PasswordScreen onCorrectPassword={() => setIsAuthenticated(true)} />
+      ) : (
+        <div style={{
+          position: 'fixed',
+          top: '40px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: '2rem',
+          zIndex: 1000,
+          display: 'flex',
+          gap: '1rem',
+          background: 'rgba(0, 0, 0, 0)',
+          padding: '10px 20px',
+          borderRadius: '20px',
+        }}>
+          <span role="img" aria-label="snake">🐍</span>
+          <span role="img" aria-label="lamb">🐑</span>
+        </div>
+      )}
+      <div 
+        ref={mountRef} 
+        style={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: isAuthenticated ? 'auto' : 'none',
+          opacity: isAuthenticated ? 1 : 0,
+        }} 
+      />
     </>
   )
 }
