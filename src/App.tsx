@@ -70,35 +70,35 @@ function App() {
         date: '10.02.2025',
         preview: 'When I asked Minjoo to be my valentine',
         url: 'https://vdayinv.netlify.app',
-        image: './src/assets/vdayinv.png'
+        image: './vdayinv.png'
       },
       { 
         title: '신기했던 인생네컷',
         date: '16.01.2025',
         preview: 'I liked this one',
         url: '',
-        image: './src/assets/booth.jpeg'
+        image: './booth.jpeg'
       },
       { 
         title: 'Media Night',
         date: '14.02.2025',
         preview: 'Overcooked!',
         url: 'https://medianight.netlify.app',
-        image: './src/assets/medianight.png'
+        image: './medianight.png'
       },
       { 
         title: 'Itaewon',
         date: '19.01.2025',
         preview: 'Pubbing!!',
         url: '',
-        image: './src/assets/itaewon.JPG'
+        image: './itaewon.JPG'
       },
       {
         title: 'e-dating',
         date: '14.02.2025',
         preview: 'chef and sous chef',
         url: '',
-        image: './src/assets/overcook.png'
+        image: './overcook.png'
       }
     ]
 
