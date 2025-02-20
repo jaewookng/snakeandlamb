@@ -149,7 +149,27 @@ function App() {
     }
   }, [])
 
-  return <div ref={mountRef}></div>
+  return (
+    <>
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: '2rem',
+        zIndex: 1000,
+        display: 'flex',
+        gap: '1rem',
+        background: 'rgba(0, 0, 0, 0)',
+        padding: '10px 20px',
+        borderRadius: '20px',
+      }}>
+        <span role="img" aria-label="snake">🐍</span>
+        <span role="img" aria-label="lamb">🐑</span>
+      </div>
+      <div ref={mountRef}></div>
+    </>
+  )
 }
 
 export default App
