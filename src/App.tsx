@@ -86,7 +86,7 @@ function App() {
       }
 
       // Create new connections
-      nodes.forEach((node, i) => {
+      nodes.forEach((node) => {
         node.connections.forEach(connectionIndex => {
           const geometry = new THREE.BufferGeometry().setFromPoints([
             node.position,
