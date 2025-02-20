@@ -12,7 +12,18 @@ interface Node {
     preview: string;
     url: string;
   };
+  defaultTexture: THREE.Texture;
+  hoverTexture: THREE.Texture;
 }
+
+interface PageData {
+  title: string;
+  date: string;
+  preview: string;
+  url: string;
+  image: string;
+}
+
 import { PasswordScreen } from './components/PasswordScreen'
 import Earth from './components/Earth'
 import './App.css'
@@ -53,25 +64,42 @@ function App() {
     controls.target.set(0, -2, 0)
 
     // Sample page data
-    const pages = [
+    const pages: PageData[] = [
       { 
         title: 'Vday Invitation',
         date: '10.02.2025',
         preview: 'When I asked Minjoo to be my valentine',
-        url: 'https://vdayinv.netlify.app'
+        url: 'https://vdayinv.netlify.app',
+        image: './src/assets/vdayinv.png'
       },
       { 
-        title: 'Coming Soon..',
-        date: 'Coming Soon..',
-        preview: 'Coming Soon..',
-        url: ''
+        title: '신기했던 인생네컷',
+        date: '16.01.2025',
+        preview: 'I liked this one',
+        url: '',
+        image: './src/assets/booth.jpeg'
       },
       { 
         title: 'Media Night',
         date: '14.02.2025',
         preview: 'Overcooked!',
-        url: 'https://medianight.netlify.app'
+        url: 'https://medianight.netlify.app',
+        image: './src/assets/medianight.png'
       },
+      { 
+        title: 'Itaewon',
+        date: '19.01.2025',
+        preview: 'Pubbing!!',
+        url: '',
+        image: './src/assets/itaewon.JPG'
+      },
+      {
+        title: 'e-dating',
+        date: '14.02.2025',
+        preview: 'chef and sous chef',
+        url: '',
+        image: './src/assets/overcook.png'
+      }
     ]
 
     // Node creation with page previews
@@ -79,8 +107,9 @@ function App() {
     const nodeGeometry = new THREE.PlaneGeometry(2, 2)
     const radius = 10
     
-    pages.forEach((pageData) => {
-      const texture = createPageTexture(pageData)
+    // Promise array to track all texture loading
+    const texturePromises = pages.map(async (pageData) => {
+      const texture = await createPageTexture(pageData)
       const nodeMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
         transparent: true,
@@ -99,16 +128,63 @@ function App() {
       const mesh = new THREE.Mesh(nodeGeometry, nodeMaterial)
       mesh.position.set(x, y, z)
       
-      nodes.push({
+      const node = {
         position: new THREE.Vector3(x, y, z),
         mesh,
         connections: [],
-        pageData
-      })
+        pageData,
+        defaultTexture: texture,
+        hoverTexture: texture
+      }
+      
+      nodes.push(node)
       scene.add(mesh)
     })
 
-    // Connect nodes
+    // Wait for all textures to load before creating connections
+    Promise.all(texturePromises).then(() => {
+      // Create connections
+      nodes.forEach((node, i) => {
+        const distances = nodes
+          .map((otherNode, index) => ({
+            index,
+            distance: node.position.distanceTo(otherNode.position)
+          }))
+          .filter(d => d.index !== i)
+          .sort((a, b) => a.distance - b.distance)
+
+        node.connections = distances.slice(0, 2).map(d => d.index)
+      })
+
+      // Create connection lines
+      const linesMaterial = new THREE.LineBasicMaterial({ 
+        color: 0xffffff, 
+        opacity: 0.3, 
+        transparent: true,
+        linewidth: 1
+      })
+
+      function updateConnections() {
+        while(connectionsGroup.children.length) {
+          connectionsGroup.remove(connectionsGroup.children[0])
+        }
+
+        nodes.forEach((node) => {
+          node.connections.forEach(connectionIndex => {
+            const geometry = new THREE.BufferGeometry().setFromPoints([
+              node.position,
+              nodes[connectionIndex].position
+            ])
+            const line = new THREE.Line(geometry, linesMaterial)
+            connectionsGroup.add(line)
+          })
+        })
+      }
+
+      updateConnections()
+    })
+
+    // Create connections
     nodes.forEach((node, i) => {
       const distances = nodes
         .map((otherNode, index) => ({
@@ -183,35 +259,48 @@ function App() {
     const mouse = new THREE.Vector2()
 
     const handleClick = (event: MouseEvent) => {
-      const rect = mountRef.current?.getBoundingClientRect()
-      if (!rect) return
-
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
-
-      raycaster.setFromCamera(mouse, camera)
-      const intersects = raycaster.intersectObjects(nodes.map(n => n.mesh))
-
+      const rect = mountRef.current?.getBoundingClientRect();
+      if (!rect) return;
+    
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(nodes.map(n => n.mesh));
+    
       if (intersects.length > 0) {
-        const clickedNode = nodes.find(n => n.mesh === intersects[0].object)
+        const clickedNode = nodes.find(n => n.mesh === intersects[0].object);
         if (clickedNode?.pageData.url) {
-          window.open(clickedNode.pageData.url, '_blank')
+          window.open(clickedNode.pageData.url, '_blank');
         }
       }
-    }
+    };
 
     const handleMouseMove = (event: MouseEvent) => {
-      const rect = mountRef.current?.getBoundingClientRect()
-      if (!rect) return
-
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
-
-      raycaster.setFromCamera(mouse, camera)
-      const intersects = raycaster.intersectObjects(nodes.map(n => n.mesh))
-
-      mountRef.current!.style.cursor = intersects.length > 0 ? 'pointer' : 'default'
-    }
+      if (!mountRef.current) return;
+      const rect = mountRef.current.getBoundingClientRect();
+    
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(nodes.map(n => n.mesh));
+    
+      if (intersects.length > 0) {
+        const hoveredNode = nodes.find(n => n.mesh === intersects[0].object);
+        if (hoveredNode) {
+          (hoveredNode.mesh.material as THREE.MeshBasicMaterial).map = hoveredNode.hoverTexture;
+          (hoveredNode.mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+          mountRef.current!.style.cursor = 'pointer';
+        }
+      } else {
+        nodes.forEach(node => {
+          (node.mesh.material as THREE.MeshBasicMaterial).map = node.defaultTexture;
+          (node.mesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+        });
+        mountRef.current!.style.cursor = 'default';
+      }
+    };
 
     mountRef.current.addEventListener('click', handleClick)
     mountRef.current.addEventListener('mousemove', handleMouseMove)
@@ -303,32 +392,49 @@ function App() {
 
 export default App
 
-function createPageTexture(pageData: { title: string; date: string; preview: string; url: string; }): THREE.Texture {
-  const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 512;
-  const context = canvas.getContext('2d')!;
+function createPageTexture(pageData: PageData): Promise<THREE.Texture> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
 
-  // Set background
-  context.fillStyle = '#2a2a2a';
-  context.fillRect(0, 0, canvas.width, canvas.height);
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.src = pageData.image
 
-  // Set text properties
-  context.fillStyle = 'white';
-  context.textAlign = 'center';
+    img.onload = () => {
+      // Draw background image
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      
+      // Add semi-transparent overlay
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      // Draw text
+      ctx.fillStyle = '#ffffff'
+      ctx.textAlign = 'center'
+      
+      // Title
+      ctx.font = 'bold 32px Arial'
+      ctx.fillText(pageData.title, canvas.width/2, 200)
+      
+      // Date
+      ctx.font = '24px Arial'
+      ctx.fillText(pageData.date, canvas.width/2, 250)
+      
+      // Preview
+      ctx.font = '20px Arial'
+      ctx.fillText(pageData.preview, canvas.width/2, 300)
 
-  // Draw title
-  context.font = 'bold 48px Arial';
-  context.fillText(pageData.title, canvas.width/2, 160);
+      resolve(new THREE.CanvasTexture(canvas))
+    }
 
-  // Draw date
-  context.font = '32px Arial';
-  context.fillText(pageData.date, canvas.width/2, 220);
-
-  // Draw preview
-  context.font = '24px Arial';
-  context.fillText(pageData.preview, canvas.width/2, 280);
-
-  return new THREE.CanvasTexture(canvas);
+    // Fallback if image fails to load
+    img.onerror = () => {
+      ctx.fillStyle = '#333333'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      resolve(new THREE.CanvasTexture(canvas))
+    }
+  })
 }
-
