@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import emailjs from '@emailjs/browser'
 
 interface Props {
   onClose: () => void;
@@ -7,12 +8,33 @@ interface Props {
 export function FeedbackModal({ onClose }: Props) {
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you can implement the logic to save the feedback
-    console.log({ name, message })
-    onClose()
+    setSending(true)
+
+    try {
+      await emailjs.send(
+        'service_iapgrin', // Replace with your EmailJS service ID
+        'template_xrvsztb', // Replace with your EmailJS template ID
+        {
+          from_name: name,
+          message: message,
+          to_name: 'Jaewoo',
+          reply_to: 'jaewookang17@gmail.com',
+        },
+        'amhOGymuxFq1lyZNp' // Replace with your EmailJS public key
+      )
+
+      setName('')
+      setMessage('')
+      onClose()
+    } catch (error) {
+      console.error('Failed to send email:', error)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -53,13 +75,15 @@ export function FeedbackModal({ onClose }: Props) {
         >
           ×
         </button>
-        <h2 style={{ marginBottom: '1.5rem', color: '#fff' }}>Leave a Message to the Developer (your bf 🥰)</h2>
+        <h2 style={{ marginBottom: '1.5rem', color: '#fff' }}>Leave a Message 💌</h2>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
+            disabled={sending}
+            required
             style={{
               padding: '0.8rem',
               borderRadius: '8px',
@@ -73,6 +97,8 @@ export function FeedbackModal({ onClose }: Props) {
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Write your message..."
             rows={5}
+            disabled={sending}
+            required
             style={{
               padding: '0.8rem',
               borderRadius: '8px',
@@ -84,17 +110,19 @@ export function FeedbackModal({ onClose }: Props) {
           />
           <button
             type="submit"
+            disabled={sending}
             style={{
               padding: '0.8rem',
               borderRadius: '8px',
               border: 'none',
-              background: '#4488ff',
+              background: sending ? '#2d5999' : '#4488ff',
               color: '#fff',
-              cursor: 'pointer',
+              cursor: sending ? 'default' : 'pointer',
               transition: 'all 0.2s ease',
+              opacity: sending ? 0.7 : 1,
             }}
           >
-            Send Message
+            {sending ? 'Sending...' : 'Send Message'}
           </button>
         </form>
       </div>
