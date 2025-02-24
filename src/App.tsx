@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { FeedbackModal } from './components/FeedbackModal'
 
 interface Node {
   position: THREE.Vector3;
@@ -30,6 +31,7 @@ import './App.css'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const mountRef = useRef<HTMLDivElement>(null)
 
   const calculateDays = () => {
@@ -372,6 +374,39 @@ function App() {
           }}>
             <Earth />
           </div>
+          <button
+            onClick={() => setShowFeedback(true)}
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '20px',
+              fontSize: '0.9rem',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              zIndex: 1000,
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(5px)',
+              cursor: 'pointer',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <span role="img" aria-label="feedback">💌</span>
+            Requests
+          </button>
+          {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
           <div 
             ref={mountRef} 
             style={{ 
