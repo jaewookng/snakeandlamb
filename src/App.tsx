@@ -107,14 +107,14 @@ function App() {
         date: '23.03.2025',
         preview: 'I love you',
         url: '',
-        image: './buttes_chaumont.HEIC'
+        image: './buttes_chaumont.jpg'
       },
       {
         title: 'best pizza',
         date: '23.03.2025',
         preview: 'Casa di Marco',
         url: '',
-        image: './casadimarco.HEIC'
+        image: './casadimarco.jpg'
       }
     ]
 
