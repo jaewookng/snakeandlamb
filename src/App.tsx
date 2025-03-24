@@ -101,6 +101,20 @@ function App() {
         preview: 'chef and sous chef',
         url: '',
         image: './overcook.png'
+      },
+      { 
+        title: "je t'aime",
+        date: '23.03.2025',
+        preview: 'I love you',
+        url: '',
+        image: './buttes_chaumont.HEIC'
+      },
+      {
+        title: 'best pizza',
+        date: '23.03.2025',
+        preview: 'Casa di Marco',
+        url: '',
+        image: './casadimarco.HEIC'
       }
     ]
 
