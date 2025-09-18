@@ -25,26 +25,16 @@ interface PageData {
   image: string;
 }
 
-interface AnkiDeck {
-  id: string;
-  name: string;
-  file: File;
-  uploadDate: Date;
-  size: number;
-}
 
 import { PasswordScreen } from './components/PasswordScreen'
 import Earth from './components/Earth'
-import { AnkiDeckUpload } from './components/AnkiDeckUpload'
 import { AnkiDeckDownload } from './components/AnkiDeckDownload'
 import './App.css'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
-  const [showAnkiUpload, setShowAnkiUpload] = useState(false)
   const [showAnkiDownload, setShowAnkiDownload] = useState(false)
-  const [uploadedDecks, setUploadedDecks] = useState<AnkiDeck[]>([])
   const mountRef = useRef<HTMLDivElement>(null)
 
   const calculateDays = () => {
@@ -54,26 +44,13 @@ function App() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   }
 
-  const handleDeckUpload = (file: File) => {
-    const newDeck: AnkiDeck = {
-      id: Date.now().toString(),
-      name: file.name,
-      file: file,
-      uploadDate: new Date(),
-      size: file.size
-    }
-    setUploadedDecks(prev => [...prev, newDeck])
-  }
-
-  const handleDeckDownload = (deck: AnkiDeck) => {
-    const url = URL.createObjectURL(deck.file)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = deck.name
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const handleDeckDownload = () => {
+    const link = document.createElement('a')
+    link.href = '/Anatomy__KIN424 copy.apkg'
+    link.download = 'Anatomy__KIN424 copy.apkg'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   useEffect(() => {
@@ -433,34 +410,6 @@ function App() {
             zIndex: 1000
           }}>
             <button
-              onClick={() => setShowAnkiUpload(true)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: 'white',
-                padding: '10px 20px',
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s ease',
-                backdropFilter: 'blur(5px)',
-                cursor: 'pointer',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <span role="img" aria-label="anki">📚</span>
-              Upload Anki Deck
-            </button>
-            <button
               onClick={() => setShowAnkiDownload(true)}
               style={{
                 background: 'rgba(255, 255, 255, 0.1)',
@@ -486,7 +435,7 @@ function App() {
               }}
             >
               <span role="img" aria-label="download">📥</span>
-              Download Decks
+              Download Anki Deck
             </button>
             <button
               onClick={() => setShowFeedback(true)}
@@ -518,8 +467,7 @@ function App() {
             </button>
           </div>
           {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
-          {showAnkiUpload && <AnkiDeckUpload onClose={() => setShowAnkiUpload(false)} onUpload={handleDeckUpload} />}
-          {showAnkiDownload && <AnkiDeckDownload onClose={() => setShowAnkiDownload(false)} decks={uploadedDecks} onDownload={handleDeckDownload} />}
+          {showAnkiDownload && <AnkiDeckDownload onClose={() => setShowAnkiDownload(false)} onDownload={handleDeckDownload} />}
           <div 
             ref={mountRef} 
             style={{ 
