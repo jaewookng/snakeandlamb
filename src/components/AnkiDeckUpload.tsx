@@ -2,9 +2,10 @@ import { useState, useRef, useCallback } from 'react'
 
 interface AnkiDeckUploadProps {
   onClose: () => void
+  onUpload: (file: File) => void
 }
 
-export const AnkiDeckUpload = ({ onClose }: AnkiDeckUploadProps) => {
+export const AnkiDeckUpload = ({ onClose, onUpload }: AnkiDeckUploadProps) => {
   const [isDragOver, setIsDragOver] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -22,6 +23,7 @@ export const AnkiDeckUpload = ({ onClose }: AnkiDeckUploadProps) => {
           if (prev >= 100) {
             clearInterval(progressInterval)
             setIsUploading(false)
+            onUpload(file) // Call the upload callback
             return 100
           }
           return prev + 10
@@ -30,7 +32,7 @@ export const AnkiDeckUpload = ({ onClose }: AnkiDeckUploadProps) => {
     } else {
       alert('Please select a valid Anki deck file (.apkg)')
     }
-  }, [])
+  }, [onUpload])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
