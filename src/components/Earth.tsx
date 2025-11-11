@@ -5,8 +5,8 @@ import { Suspense, useMemo } from "react";
 import * as THREE from "three";
 
 const LOCATIONS = {
-  DALLAS: { lat: 32.7767, lon: -96.7970, name: "Dallas" },
-  ZURICH: { lat: 47.3769, lon: 8.5417, name: "Zurich" }
+  AUSTIN: { lat: 30.2672, lon: -97.7431, name: "Austin" },
+  SEOUL: { lat: 37.5665, lon: 126.9780, name: "Seoul" }
 };
 
 function LatLonToVector3(lat: number, lon: number, radius: number) {
@@ -22,8 +22,8 @@ function LatLonToVector3(lat: number, lon: number, radius: number) {
 
 function ConnectionLine() {
   const radius = 1.55;
-  const start = LatLonToVector3(LOCATIONS.DALLAS.lat, LOCATIONS.DALLAS.lon, radius);
-  const end = LatLonToVector3(LOCATIONS.ZURICH.lat, LOCATIONS.ZURICH.lon, radius);
+  const start = LatLonToVector3(LOCATIONS.AUSTIN.lat, LOCATIONS.AUSTIN.lon, radius);
+  const end = LatLonToVector3(LOCATIONS.SEOUL.lat, LOCATIONS.SEOUL.lon, radius);
   
   const curve = useMemo(() => {
     const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
@@ -54,7 +54,7 @@ function ConnectionLine() {
           fontFamily: 'Arial',
           whiteSpace: 'nowrap'
         }}>
-          8,407 km
+          11,026 km
         </div>
       </Html>
       <Line 

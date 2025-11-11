@@ -359,16 +359,21 @@ function App() {
             top: '40px',
             left: '50%',
             transform: 'translateX(-50%)',
-            fontSize: '2rem',
+            fontSize: '2.2rem',
             zIndex: 1000,
             display: 'flex',
-            gap: '1rem',
-            background: 'rgba(0, 0, 0, 0)',
-            padding: '10px 20px',
-            borderRadius: '20px',
+            gap: '1.2rem',
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04))',
+            backdropFilter: 'blur(15px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(15px) saturate(150%)',
+            padding: '12px 24px',
+            borderRadius: '24px',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.1)',
+            animation: 'slideDown 0.6s ease'
           }}>
-            <span role="img" aria-label="snake">🐍</span>
-            <span role="img" aria-label="lamb">🐑</span>
+            <span role="img" aria-label="snake" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>🐍</span>
+            <span role="img" aria-label="lamb" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))' }}>🐑</span>
           </div>
           <div style={{
             position: 'fixed',
@@ -376,14 +381,26 @@ function App() {
             left: '40px',
             transform: 'translateY(-50%)',
             zIndex: 1000,
-            color: 'white',
+            color: 'rgba(255, 255, 255, 0.95)',
             textAlign: 'center',
-            background: 'rgba(0, 0, 0, 0)',
-            padding: '20px',
-            borderRadius: '10px',
-            fontFamily: 'Arial, sans-serif'
+            background: 'linear-gradient(135deg, rgba(255, 59, 48, 0.08), rgba(255, 59, 48, 0.04))',
+            backdropFilter: 'blur(20px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+            padding: '25px 30px',
+            borderRadius: '20px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+            border: '1px solid rgba(255, 59, 48, 0.2)',
+            boxShadow: '0 12px 40px rgba(255, 59, 48, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.1)',
+            animation: 'slideIn 0.6s ease'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>
+            <div style={{
+              fontSize: '3.2rem',
+              marginBottom: '10px',
+              fontWeight: '700',
+              letterSpacing: '-0.02em',
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+              animation: 'pulse 2s ease-in-out infinite'
+            }}>
               +{calculateDays()} ❤️
             </div>
           </div>
@@ -412,65 +429,103 @@ function App() {
             <button
               onClick={() => setShowAnkiDownload(true)}
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: 'white',
-                padding: '10px 20px',
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                border: 'none',
+                background: 'linear-gradient(135deg, rgba(94, 172, 255, 0.15), rgba(94, 172, 255, 0.08))',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                color: 'rgba(255, 255, 255, 0.95)',
+                padding: '12px 24px',
+                borderRadius: '24px',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                letterSpacing: '0.3px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+                border: '1px solid rgba(94, 172, 255, 0.25)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s ease',
-                backdropFilter: 'blur(5px)',
+                gap: '10px',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(94, 172, 255, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.1)',
+                position: 'relative',
+                overflow: 'hidden',
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(94, 172, 255, 0.25), rgba(94, 172, 255, 0.15))';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 12px 32px rgba(94, 172, 255, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(94, 172, 255, 0.4)';
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(94, 172, 255, 0.15), rgba(94, 172, 255, 0.08))';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(94, 172, 255, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(94, 172, 255, 0.25)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px) scale(0.98)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(94, 172, 255, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 12px 32px rgba(94, 172, 255, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.15)';
               }}
             >
-              <span role="img" aria-label="download">📥</span>
+              <span role="img" aria-label="download" style={{ fontSize: '1.1rem', filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))' }}>📥</span>
               Download Anki Deck
             </button>
             <button
               onClick={() => setShowFeedback(true)}
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: 'white',
-                padding: '10px 20px',
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                border: 'none',
+                background: 'linear-gradient(135deg, rgba(255, 59, 48, 0.15), rgba(255, 59, 48, 0.08))',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                color: 'rgba(255, 255, 255, 0.95)',
+                padding: '12px 24px',
+                borderRadius: '24px',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                letterSpacing: '0.3px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+                border: '1px solid rgba(255, 59, 48, 0.25)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s ease',
-                backdropFilter: 'blur(5px)',
+                gap: '10px',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(255, 59, 48, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.1)',
+                position: 'relative',
+                overflow: 'hidden',
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 59, 48, 0.25), rgba(255, 59, 48, 0.15))';
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 59, 48, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(255, 59, 48, 0.4)';
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 59, 48, 0.15), rgba(255, 59, 48, 0.08))';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 59, 48, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 59, 48, 0.25)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px) scale(0.98)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(255, 59, 48, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 12px 32px rgba(255, 59, 48, 0.25), inset 0 1px 3px rgba(255, 255, 255, 0.15)';
               }}
             >
-              <span role="img" aria-label="feedback">💌</span>
+              <span role="img" aria-label="feedback" style={{ fontSize: '1.1rem', filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))' }}>💌</span>
               Requests
             </button>
           </div>
           {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
           {showAnkiDownload && <AnkiDeckDownload onClose={() => setShowAnkiDownload(false)} onDownload={handleDeckDownload} />}
-          <div 
-            ref={mountRef} 
-            style={{ 
+          <div
+            ref={mountRef}
+            style={{
               position: 'fixed',
               top: 0,
               left: 0,
@@ -478,8 +533,54 @@ function App() {
               height: '100%',
               pointerEvents: isAuthenticated ? 'auto' : 'none',
               opacity: isAuthenticated ? 1 : 0,
-            }} 
+            }}
           />
+
+          {/* Add global animations for this component */}
+          <style>{`
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+              }
+            }
+
+            @keyframes slideIn {
+              from {
+                opacity: 0;
+                transform: translateY(-50%) translateX(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+              }
+            }
+
+            @keyframes pulse {
+              0% {
+                transform: scale(1);
+              }
+              50% {
+                transform: scale(1.05);
+              }
+              100% {
+                transform: scale(1);
+              }
+            }
+
+            @keyframes float {
+              0%, 100% {
+                transform: translateY(0px);
+              }
+              50% {
+                transform: translateY(-10px);
+              }
+            }
+          `}</style>
         </>
       )}
     </>
