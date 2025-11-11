@@ -46,8 +46,8 @@ function App() {
 
   const handleDeckDownload = () => {
     const link = document.createElement('a')
-    link.href = '/Anatomy__KIN424 copy.apkg'
-    link.download = 'Anatomy__KIN424 copy.apkg'
+    link.href = '/Anatomy__KIN424.apkg'
+    link.download = 'Anatomy__KIN424.apkg'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
